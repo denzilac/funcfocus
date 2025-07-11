@@ -135,9 +135,9 @@ class TaskService extends ChangeNotifier {
     }
   }
 
-  Future<void> addTask({ required String title, required String description, required String category, required bool isRecurring, required int maxDeferrals, }) async {
+  Future<void> addTask({ required String title, required String description, required String category, required int maxDeferrals, }) async {
     _backupState();
-    _tasks.add(Task(id: _uuid.v4(), title: title, description: description, category: category, order: _tasks.length, isRecurring: isRecurring, maxDeferrals: maxDeferrals));
+    _tasks.add(Task(id: _uuid.v4(), title: title, description: description, category: category, order: _tasks.length, maxDeferrals: maxDeferrals));
     await _saveTasksToCloud();
     _notifyAndRefresh();
   }
@@ -147,12 +147,7 @@ class TaskService extends ChangeNotifier {
     final taskIndex = _tasks.indexWhere((t) => t.id == taskId);
     if (taskIndex == -1) return;
     final task = _tasks[taskIndex];
-    if (task.isRecurring) {
-      task.order = _tasks.length;
-      task.deferralCount = 0;
-    } else {
-      _tasks.removeAt(taskIndex);
-    }
+    _tasks.removeAt(taskIndex);
     _sortAndRenumberTasks();
     await _saveTasksToCloud();
     _notifyAndRefresh();
@@ -221,11 +216,7 @@ Future<void> reorderTask(int oldIndex, int newIndex) async {
     if (kIsWeb) return;
     if (_tasks.isNotEmpty) {
       final topTask = _tasks.first;
-      if (!topTask.isRecurring) {
-        notificationService.showPersistentNotification(topTask.title, topTask.description, topTask.category);
-      } else {
-        notificationService.cancelNotification();
-      }
+      notificationService.showPersistentNotification(topTask.title, topTask.description, topTask.category);
     } else {
       notificationService.cancelNotification();
     }

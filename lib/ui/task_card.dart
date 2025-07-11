@@ -1,39 +1,31 @@
 import 'package:flutter/material.dart';
 import '../task_model.dart';
+import '../utils/app_colors.dart'; // <-- IMPORT our new color file
 
 class TaskCard extends StatelessWidget {
   final Task task;
   const TaskCard({Key? key, required this.task}) : super(key: key);
 
-Color _getCategoryColor(String category) {
-  switch (category.toLowerCase()) {
-    case 'home': return Color(0xFF1976D2);   // Dark Blue
-    case 'work': return Color(0xFF6D4C41);   // Dark Brown
-    case 'focus': return Color(0xFF8E24AA);  // Dark Purple
-    case 'health': return Color(0xFF2E7D32);  // Dark Green
-    // New Categories
-    case 'game': return Color(0xFFF57C00);   // Dark Orange
-    case 'chores': return Color(0xFF00796B);  // Dark Teal
-    case 'data': return Color(0xFF3949AB);   // Dark Indigo
-    default: return Colors.grey.shade800;
-  }
-}
+  // The local _getCategoryColor function is now GONE!
 
   @override
   Widget build(BuildContext context) {
     final bool isTopTask = task.order == 0;
+    // Use a slightly darker red for the deferral count to make it stand out
     final deferralColor = task.deferralCount > (task.maxDeferrals / 2)
-        ? Colors.red.shade300 : Colors.white.withOpacity(0.8);
+        ? Colors.red.shade400 : Colors.white.withOpacity(0.8);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: isTopTask ? 8.0 : 12.0, vertical: 6.0),
       decoration: BoxDecoration(
-        boxShadow: [BoxShadow(color: isTopTask ? Colors.purple.withOpacity(0.3) : Colors.black.withOpacity(0.5),
+        boxShadow: [BoxShadow(color: isTopTask ? Colors.purple.withOpacity(0.2) : Colors.black.withOpacity(0.3),
             blurRadius: 8, spreadRadius: isTopTask ? 2 : 0, offset: Offset(0, 4))],
-        color: _getCategoryColor(task.category),
+        // We now get the color from our central AppColors class
+        color: AppColors.get(task.category),
         borderRadius: BorderRadius.circular(12.0),
       ),
-      child: ClipRRect(
+      child: /* ... rest of your code is unchanged ... */
+      ClipRRect(
         borderRadius: BorderRadius.circular(12.0),
         child: Stack(
           children: [
@@ -67,10 +59,6 @@ Color _getCategoryColor(String category) {
                   children: [
                     if (task.deferralCount > 0)
                       Text('${task.deferralCount}', style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: deferralColor)),
-                    if (task.deferralCount > 0 && task.isRecurring)
-                      SizedBox(width: 8.0),
-                    if (task.isRecurring)
-                      Icon(Icons.repeat, size: 16.0, color: Colors.white.withOpacity(0.8)),
                   ],
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../task_service.dart';
+import '../utils/app_colors.dart'; // <-- IMPORT our new color file
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({Key? key}) : super(key: key);
@@ -14,22 +15,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _maxDeferralsController = TextEditingController(text: '5');
-  bool _isRecurring = false;
-  String _category = 'Home';
-
-Color _getCategoryColor(String category) {
-  switch (category.toLowerCase()) {
-    case 'home': return Colors.blue.shade300;
-    case 'work': return Colors.brown.shade300;
-    case 'focus': return Colors.purple.shade300;
-    case 'health': return Colors.green.shade300;
-    // New Categories
-    case 'game': return Colors.orange.shade300;
-    case 'chores': return Colors.teal.shade300;
-    case 'data': return Colors.indigo.shade300;
-    default: return Colors.grey.shade300;
-  }
-}
+  
+  String? _category;
+  
+  final List<String> _categoryList = ['Home', 'Work', 'Project', 'Health', 'Gardening', 'Entertain', 'Chores'];
 
   @override
   void dispose() {
@@ -44,8 +33,7 @@ Color _getCategoryColor(String category) {
       Provider.of<TaskService>(context, listen: false).addTask(
         title: _titleController.text,
         description: _descriptionController.text,
-        category: _category,
-        isRecurring: _isRecurring,
+        category: _category!,
         maxDeferrals: int.tryParse(_maxDeferralsController.text) ?? 5,
       );
       Navigator.of(context).pop();
@@ -54,7 +42,8 @@ Color _getCategoryColor(String category) {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = _getCategoryColor(_category);
+    final Color activeColor = AppColors.get(_category);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: activeColor.withOpacity(0.2),
@@ -81,9 +70,11 @@ Color _getCategoryColor(String category) {
               SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _category,
+                hint: Text('Select a category...'),
                 decoration: InputDecoration(labelText: 'Category', focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: activeColor, width: 2.0))),
-                items: ['Home', 'Work', 'Focus', 'Health', 'Game', 'Chores', 'Data'].map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
-                onChanged: (value) => setState(() => _category = value!),
+                items: _categoryList.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
+                onChanged: (value) => setState(() => _category = value),
+                validator: (value) => (value == null) ? 'Please select a category' : null,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -92,14 +83,6 @@ Color _getCategoryColor(String category) {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) => (value == null || value.isEmpty) ? 'Please enter a number' : null,
-              ),
-              SizedBox(height: 10),
-              SwitchListTile(
-                title: Text('Recurring Task'),
-                value: _isRecurring,
-                onChanged: (value) => setState(() => _isRecurring = value),
-                activeColor: activeColor,
-                activeTrackColor: activeColor.withOpacity(0.5),
               ),
             ],
           ),

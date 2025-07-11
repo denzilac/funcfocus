@@ -1,18 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum RecurrenceType { daily, weekly, biweekly, monthly }
-
-class RecurrenceRule {
-  final RecurrenceType type;
-  RecurrenceRule({required this.type});
-  Map<String, dynamic> toJson() => {'type': type.toString()};
-  static RecurrenceRule fromJson(Map<String, dynamic> json) {
-    return RecurrenceRule(
-        type: RecurrenceType.values
-            .firstWhere((e) => e.toString() == json['type']));
-  }
-}
-
 class Task {
   String id;
   String title;
@@ -20,8 +7,6 @@ class Task {
   String category;
   int order;
   int deferralCount;
-  bool isRecurring;
-  RecurrenceRule? recurrenceRule;
   int maxDeferrals;
 
   Task({
@@ -31,8 +16,6 @@ class Task {
     required this.category,
     required this.order,
     this.deferralCount = 0,
-    this.isRecurring = false,
-    this.recurrenceRule,
     this.maxDeferrals = 5,
   });
 
@@ -43,8 +26,6 @@ class Task {
         'category': category,
         'order': order,
         'deferralCount': deferralCount,
-        'isRecurring': isRecurring,
-        'recurrenceRule': recurrenceRule?.toJson(),
         'maxDeferrals': maxDeferrals,
       };
 
@@ -55,10 +36,6 @@ class Task {
         category: json['category'],
         order: json['order'],
         deferralCount: json['deferralCount'],
-        isRecurring: json['isRecurring'],
-        recurrenceRule: json['recurrenceRule'] != null
-            ? RecurrenceRule.fromJson(json['recurrenceRule'])
-            : null,
         maxDeferrals: json['maxDeferrals'] ?? 5,
       );
 }
